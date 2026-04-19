@@ -17,7 +17,7 @@ return new class extends Migration
                 $table->string('trigger_source')->default('manual')->after('session_id'); // manual, auto_off, scheduler
             }
             if (!Schema::hasColumn('alarm_logs', 'remaining_seconds')) {
-                $table->integer('remaining_seconds')->nullable()->after('details');
+                $table->integer('remaining_seconds')->nullable()->after('trigger_source');
             }
         });
     }
