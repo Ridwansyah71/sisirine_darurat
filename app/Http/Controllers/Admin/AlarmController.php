@@ -67,7 +67,7 @@ class AlarmController extends Controller
             AlarmLog::create([
                 'user_id' => auth()->id(),
                 'action'  => 'ALARM_ON',
-                'event_time' => now(),
+                'created_at' => now(),
             ]);
 
             // ✅ LOG: Aktivasi sirine oleh admin
@@ -98,7 +98,7 @@ class AlarmController extends Controller
             AlarmLog::create([
                 'user_id' => auth()->id(),
                 'action'  => 'ALARM_OFF',
-                'event_time' => now(),
+                'created_at' => now(),
             ]);
 
             // ✅ LOG: Pematian sirine oleh admin
@@ -175,7 +175,7 @@ class AlarmController extends Controller
                     'user_name' => $log->user?->name ?? 'System',
                     'user_role' => $log->user?->role ?? 'AUTO',
                     'action' => $log->action,
-                    'event_time' => $log->event_time,
+                    'created_at' => $log->created_at,
                     'created_at' => $log->created_at,
                 ];
             });
@@ -260,7 +260,7 @@ class AlarmController extends Controller
 
         AlarmLog::create([
             'action' => 'AUTO_OFF',
-            'event_time' => now(),
+            'created_at' => now(),
         ]);
 
         // ✅ LOG: Auto off sirine (dari sistem)

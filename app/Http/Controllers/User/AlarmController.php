@@ -223,7 +223,7 @@ class AlarmController extends Controller
             $logs = AlarmLog::with('user')
                 ->where('user_id', $userId) // ← filter by user yang login
                 ->whereIn('action', ['ALARM_ON', 'ALARM_OFF', 'AUTO_OFF']) // ← opsional: hanya ambil action relevan
-                ->orderBy('event_time', 'desc')
+                ->orderBy('created_at', 'desc')
                 ->limit($limit)
                 ->get()
                 ->map(function ($log) {
@@ -231,7 +231,7 @@ class AlarmController extends Controller
                         'id'          => $log->id,
                         'action'      => $log->action,
                         'user_name'   => $log->user ? $log->user->name : 'System',
-                        'created_at'  => $log->event_time,
+                        'created_at'  => $log->created_at,
                         'session_id'  => $log->session_id,
                         'description' => $log->description
                     ];

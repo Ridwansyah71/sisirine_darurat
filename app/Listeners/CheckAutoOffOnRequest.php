@@ -58,7 +58,7 @@ class CheckAutoOffAlarm extends Command
                 AlarmLog::create([
                     'action' => 'AUTO_OFF',
                     'session_id' => $sessionId,
-                    'event_time' => now(),
+                    'created_at' => now(),
                     'details' => json_encode([
                         'trigger' => 'scheduler',
                         'duration' => $duration,

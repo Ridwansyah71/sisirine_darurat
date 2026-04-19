@@ -18,9 +18,9 @@ class RiwayatController extends Controller
         // ========== QUERY UNTUK RIWAYAT SIRINE (TABEL PERTAMA) ==========
         // Menampilkan ALARM_ON, ALARM_OFF, dan AUTO_OFF
         $query = AlarmLog::with('user')
-            ->whereNotNull('event_time')
+            ->whereNotNull('created_at')
             ->whereIn('action', ['ALARM_ON', 'ALARM_OFF', 'AUTO_OFF'])
-            ->orderBy('event_time', 'desc');
+            ->orderBy('created_at', 'desc');
 
         // Filter berdasarkan kata kunci
         if ($request->filled('search')) {
@@ -41,7 +41,7 @@ class RiwayatController extends Controller
 
         // Filter berdasarkan rentang tanggal
         if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('event_time', [
+            $query->whereBetween('created_at', [
                 Carbon::parse($request->start_date)->startOfDay(),
                 Carbon::parse($request->end_date)->endOfDay()
             ]);
@@ -57,8 +57,8 @@ class RiwayatController extends Controller
         // ========== QUERY UNTUK SEMUA LOG (TABEL LOGGING / KEDUA) ==========
         // Menampilkan SEMUA log (termasuk AUTO_OFF, CREATE_USER, dll)
         $allLogsQuery = AlarmLog::with('user')
-            ->whereNotNull('event_time')
-            ->orderBy('event_time', 'desc');
+            ->whereNotNull('created_at')
+            ->orderBy('created_at', 'desc');
 
         // Filter untuk tabel logging
         if ($request->filled('log_search')) {
@@ -83,28 +83,28 @@ class RiwayatController extends Controller
         $allLogs->appends($request->query());
 
         // ========== STATISTIK ==========
-        $totalLogs = AlarmLog::whereNotNull('event_time')->count();
-        $todayLogs = AlarmLog::whereNotNull('event_time')
-            ->whereDate('event_time', today())
+        $totalLogs = AlarmLog::whereNotNull('created_at')->count();
+        $todayLogs = AlarmLog::whereNotNull('created_at')
+            ->whereDate('created_at', today())
             ->count();
-        $sirineLogs = AlarmLog::whereNotNull('event_time')
+        $sirineLogs = AlarmLog::whereNotNull('created_at')
             ->whereIn('action', ['ALARM_ON', 'ALARM_OFF', 'AUTO_OFF'])
             ->count();
 
         // Hitung log lainnya
-        $autoOffLogs = AlarmLog::whereNotNull('event_time')
+        $autoOffLogs = AlarmLog::whereNotNull('created_at')
             ->where('action', 'AUTO_OFF')
             ->count();
-        $userManagementLogs = AlarmLog::whereNotNull('event_time')
+        $userManagementLogs = AlarmLog::whereNotNull('created_at')
             ->whereIn('action', ['CREATE_USER', 'UPDATE_USER', 'DELETE_USER'])
             ->count();
-        $incidentLogs = AlarmLog::whereNotNull('event_time')
+        $incidentLogs = AlarmLog::whereNotNull('created_at')
             ->whereIn('action', ['CREATE_INCIDENT', 'UPDATE_INCIDENT_STATUS', 'DELETE_INCIDENT'])
             ->count();
 
-        $lastActivityTime = AlarmLog::whereNotNull('event_time')
-            ->latest('event_time')
-            ->first()?->event_time;
+        $lastActivityTime = AlarmLog::whereNotNull('created_at')
+            ->latest('created_at')
+            ->first()?->created_at;
 
         // ========== KIRIM KE VIEW ==========
         return view('admin.riwayat', compact(
@@ -143,9 +143,9 @@ class RiwayatController extends Controller
     private function exportSirineLogs($request, $format)
     {
         $query = AlarmLog::with('user')
-            ->whereNotNull('event_time')
+            ->whereNotNull('created_at')
             ->whereIn('action', ['ALARM_ON', 'ALARM_OFF', 'AUTO_OFF'])
-            ->orderBy('event_time', 'desc');
+            ->orderBy('created_at', 'desc');
 
         // Apply filters
         if ($request->filled('search')) {
@@ -179,8 +179,8 @@ class RiwayatController extends Controller
     private function exportSystemLogs($request, $format)
     {
         $query = AlarmLog::with('user')
-            ->whereNotNull('event_time')
-            ->orderBy('event_time', 'desc');
+            ->whereNotNull('created_at')
+            ->orderBy('created_at', 'desc');
 
         // Apply filters
         if ($request->filled('log_search')) {
@@ -242,8 +242,8 @@ class RiwayatController extends Controller
             foreach ($logs as $index => $log) {
                 $row = [
                     $index + 1,
-                    $this->formatDateTime($log->event_time, 'd-m-Y'),
-                    $this->formatDateTime($log->event_time, 'H:i:s'),
+                    $this->formatDateTime($log->created_at, 'd-m-Y'),
+                    $this->formatDateTime($log->created_at, 'H:i:s'),
                     $log->user->name ?? 'Unknown',
                     $this->getActionLabel($log->action),
                     $log->ip_address ?? '-',
@@ -297,8 +297,8 @@ class RiwayatController extends Controller
             foreach ($logs as $index => $log) {
                 $row = [
                     $index + 1,
-                    $this->formatDateTime($log->event_time, 'd-m-Y'),
-                    $this->formatDateTime($log->event_time, 'H:i:s'),
+                    $this->formatDateTime($log->created_at, 'd-m-Y'),
+                    $this->formatDateTime($log->created_at, 'H:i:s'),
                     $log->user->name ?? 'Sistem',
                     $this->getActionLabel($log->action),
                     $this->cleanCsvField($log->description ?? '-'),
@@ -404,7 +404,7 @@ class RiwayatController extends Controller
     public function clearAll()
     {
         try {
-            AlarmLog::whereNotNull('event_time')->delete();
+            AlarmLog::whereNotNull('created_at')->delete();
 
             return redirect()->back()->with('success', 'Semua riwayat aktivitas telah dihapus.');
         } catch (\Exception $e) {

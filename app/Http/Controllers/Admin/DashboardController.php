@@ -25,7 +25,7 @@ class DashboardController extends Controller
         // ========== AKTIVITAS TERAKHIR (ALARM_ON dan AUTO_OFF) ==========
         $recentLogs = AlarmLog::with('user')
             ->whereIn('action', ['ALARM_ON', 'AUTO_OFF'])  // Hanya ALARM_ON dan AUTO_OFF
-            ->orderBy('event_time', 'desc')
+            ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
         
